@@ -1,7 +1,7 @@
 {
   "buildCommand": "bunx prisma generate && bunx prisma migrate deploy",
   "installCommand": "bun install",
-  "bunVersion": "1.2.0",
+  "bunVersion": "1.3.9",
   "rewrites": [
     { "source": "/(.*)", "destination": "/src/index.ts" }
   ]
