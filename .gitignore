@@ -37,4 +37,3 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 postgres_data/
 generated/
 src/generated/prisma
-prisma/migrations
