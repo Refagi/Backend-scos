@@ -1,12 +1,10 @@
 import prisma from '@/../prisma/client.js'
-import { sseManager, type NotifPayload } from '@/utils/sseManager.js'
+import { sendToUser } from '@/utils/pusherServer.js'
 import type { Role, NotifType } from '@/generated/prisma/client.js'
 import type { CreateNotifParams } from '@/models/notifikasi.model.js'
 
-
 export class NotifikasiService {
 
-  // ── Buat notif di DB lalu langsung push ke SSE (jika user online) ──────────
   static async kirim(params: CreateNotifParams): Promise<void> {
     const notif = await prisma.notifikasi.create({
       data: {
@@ -21,9 +19,7 @@ export class NotifikasiService {
       },
     })
 
-    // Push real-time — jika user offline, notif sudah tersimpan di DB
-    // dan akan di-load saat user buka halaman/login
-    const payload: NotifPayload = {
+    await sendToUser(params.userId, {
       id:        notif.id,
       userId:    notif.userId,
       role:      notif.role,
@@ -34,18 +30,14 @@ export class NotifikasiService {
       pesananId: notif.pesananId,
       menuId:    notif.menuId,
       createdAt: notif.createdAt,
-    }
-
-    sseManager.sendToUser(params.userId, payload)
+    })
   }
 
-  //  Kirim ke semua seller sekaligus (misal: broadcast pengumuman)
   static async kirimKeRole(role: Role, params: Omit<CreateNotifParams, 'userId' | 'role'>): Promise<void> {
     const users = await prisma.user.findMany({ where: { role }, select: { id: true } })
     await Promise.all(users.map((u) => NotifikasiService.kirim({ ...params, userId: u.id, role })))
   }
 
-  // Ambil semua notif user (untuk initial load saat halaman dibuka)
   static async getDaftarNotifikasi(userId: string) {
     return prisma.notifikasi.findMany({
       where:   { userId },
@@ -54,12 +46,10 @@ export class NotifikasiService {
     })
   }
 
-  // Ambil hanya yang belum dibaca (untuk badge counter)
   static async getJumlahBelumDibaca(userId: string): Promise<number> {
     return prisma.notifikasi.count({ where: { userId, isRead: false } })
   }
 
-  // Tandai satu notifikasi sudah dibaca
   static async tandaiDibaca(notifId: string, userId: string) {
     return prisma.notifikasi.updateMany({
       where: { id: notifId, userId },
@@ -67,7 +57,6 @@ export class NotifikasiService {
     })
   }
 
-  // Tandai semua notifikasi user sudah dibaca
   static async tandaiSemuaDibaca(userId: string) {
     return prisma.notifikasi.updateMany({
       where: { userId, isRead: false },
@@ -75,17 +64,16 @@ export class NotifikasiService {
     })
   }
 
-  // Hapus notifikasi (opsional, untuk "clear all")
   static async hapusSemua(userId: string) {
     return prisma.notifikasi.deleteMany({ where: { userId } })
   }
 }
 
 export async function notifPesananBaru(params: {
-  sellerId: string
-  customerName: string
-  orderNumber: string
-  pesananId: string
+  sellerId:      string
+  customerName:  string
+  orderNumber:   string
+  pesananId:     string
   ringkasanMenu: string
 }) {
   await NotifikasiService.kirim({
@@ -115,11 +103,11 @@ export async function notifPembayaranDikirim(params: {
 }
 
 export async function notifStatusBerubah(params: {
-  customerId: string
+  customerId:  string
   orderNumber: string
-  pesananId: string
-  status: string
-  sellerName: string
+  pesananId:   string
+  status:      string
+  sellerName:  string
 }) {
   type StatusConfig = { title: string; message: string; type: NotifType }
 

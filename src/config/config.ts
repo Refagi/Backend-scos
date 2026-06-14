@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type{ TokenTypeConfig } from '@/models/token.model';
+import type { PusherTypeConfig } from '@/models/pusher.model';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
@@ -11,12 +12,12 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRATION_DAYS: z.coerce.number().default(30),
   JWT_RESET_PASSWORD_EXPIRATION_MINUTES: z.coerce.number().default(5),
   JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: z.coerce.number().default(5),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional(),
-  SMTP_USERNAME: z.string().optional(),
-  SMTP_PASSWORD: z.string().optional(),
-  EMAIL_FROM: z.string().optional(),
   FRONTEND_URL: z.string(),
+  PUSHER_APP_ID: z.string().trim().min(1, { message: 'PUSHER_APP_ID is required' }),
+  PUSHER_KEY: z.string().trim().min(1, { message: 'PUSHER_KEY is required' }),
+  PUSHER_SECRET: z.string().trim().min(1, { message: 'PUSHER_SECRET is required' }),
+  PUSHER_CLUSTER: z.string().trim().min(1, { message: 'PUSHER_CLUSTER is required' }),
+
 });
 
 class AppConfig {
@@ -75,18 +76,12 @@ class AppConfig {
       verifyEmailExpirationMinutes: this.typeEnv.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES
     }
   }
-
-  get email() {
+  get pusher(): PusherTypeConfig {
     return {
-      smtp: {
-        host: this.typeEnv.SMTP_HOST,
-        port: this.typeEnv.SMTP_PORT,
-        auth: {
-          user: this.typeEnv.SMTP_USERNAME,
-          pass: this.typeEnv.SMTP_PASSWORD
-        },
-      },
-      from: this.typeEnv.EMAIL_FROM
+      appId: this.typeEnv.PUSHER_APP_ID,
+      key: this.typeEnv.PUSHER_KEY,
+      secret: this.typeEnv.PUSHER_SECRET,
+      cluster: this.typeEnv.PUSHER_CLUSTER
     }
   }
   get fe(): string {

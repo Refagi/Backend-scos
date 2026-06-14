@@ -32,7 +32,7 @@ app.use('*', xssSanitizeMiddleware)
 app.use(
   '/v1/*',
   cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

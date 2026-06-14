@@ -7,8 +7,6 @@ import type { User } from '@/models/user.model.js'
 
 class NotifikasiController {
 
-  // GET /notifications
-  // Ambil semua notifikasi user (50 terbaru) — untuk initial load
   static getDaftar = catchAsync(async (c: Context) => {
     const user = c.get('user') as User
     if (!user) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Tidak terautentikasi')
@@ -17,8 +15,6 @@ class NotifikasiController {
     return c.json({ status: httpStatusCode.OK, data: notifs })
   })
 
-  // GET /notifications/unread-count
-  // Hanya jumlah badge counter — ringan, bisa di-poll jika perlu
   static getJumlahBelumDibaca = catchAsync(async (c: Context) => {
     const user = c.get('user') as User
     if (!user) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Tidak terautentikasi')
@@ -27,8 +23,6 @@ class NotifikasiController {
     return c.json({ status: httpStatusCode.OK, data: { count } })
   })
 
-  // PATCH /notifications/:notifId/read
-  // Tandai satu notifikasi sudah dibaca
   static tandaiDibaca = catchAsync(async (c: Context) => {
     const user    = c.get('user') as User
     const notifId = c.req.param('notifId')
@@ -38,8 +32,6 @@ class NotifikasiController {
     return c.json({ status: httpStatusCode.OK, message: 'Notifikasi ditandai sudah dibaca' })
   })
 
-  // PATCH /notifications/read-all
-  // Tandai semua notifikasi sudah dibaca
   static tandaiSemuaDibaca = catchAsync(async (c: Context) => {
     const user = c.get('user') as User
     if (!user) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Tidak terautentikasi')
@@ -48,8 +40,6 @@ class NotifikasiController {
     return c.json({ status: httpStatusCode.OK, message: 'Semua notifikasi ditandai sudah dibaca' })
   })
 
-  // DELETE /notifications
-  // Hapus semua notifikasi user
   static hapusSemua = catchAsync(async (c: Context) => {
     const user = c.get('user') as User
     if (!user) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Tidak terautentikasi')
