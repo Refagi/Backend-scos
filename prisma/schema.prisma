@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum Role {
+  admin
+  seller
+  customer
+}
+
+enum UserStatus {
+  active
+  non_active
+  pending
+}
+
+enum MenuCategory {
+  Makanan_Berat
+  Cemilan
+  Minuman
+}
+
+enum OrderStatus {
+  menunggu
+  ditolak
+  diterima
+  dimasak
+  siap
+  selesai
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  VERIFY_EMAIL
+  RESET_PASSWORD
+  UPDATE_EMAIL
+}
+
+enum NotifType {
+  info
+  success
+  warning
+  error
+}
+
+
+model User {
+  id        String     @id @default(uuid())
+  name      String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(150)
+  phone     String?    @db.VarChar(20)
+  password  String
+  role      Role       @default(customer)
+  status    UserStatus @default(active)
+  avatar    String?    @db.Text
+
+  //role seller (nullable untuk role lain)
+  storeName   String?  @db.VarChar(150)
+  description String?  @db.Text
+  location    String?  @db.VarChar(200)
+  isOpen      Boolean? @default(true)
+  openLabel   String?  @db.VarChar(100) /// contoh: "Buka hingga 15.30"
+  logo        String?  @db.Text
+  image       String?  @db.Text
+  qrisImage   String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  menus              Menu[]
+  ordersAsSeller     Pesanan[]       @relation("SellerOrders")
+
+  ordersAsCustomer   Pesanan[]       @relation("CustomerOrders")
+
+  supervisedDetails  DetailPesanan[] @relation("AdminSupervisedDetails")
+
+  notifikasi        Notifikasi[]    @relation("UserNotifikasi")
+
+  tokens Token[]
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+
+model Token {
+  id          String    @id @default(uuid())
+  token       String
+  userId      String
+  type        TokenType
+  newEmail    String?
+  expires     DateTime
+  blacklisted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("tokens")
+}
+
+
+model Menu {
+  id          String       @id @default(uuid())
+  sellerId    String
+  name        String       @db.VarChar(150)
+  description String?      @db.Text
+  price       Int
+  category    MenuCategory
+  image       String?      @db.Text
+  isAvailable Boolean      @default(true)
+  stock       Int?         @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seller       User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  orderDetails DetailPesanan[]
+
+
+  @@index([sellerId])
+  @@index([category])
+  @@map("menu")
+}
+
+model Pesanan {
+  id          String      @id @default(uuid())
+  orderNumber String      @unique @default(uuid())
+  customerId  String
+  sellerId    String
+
+  totalPrice Int
+  status     OrderStatus @default(menunggu)
+  isPaid       Boolean     @default(false)
+  paidAt       DateTime?
+  slot       String?     @db.VarChar(50)
+  notes      String?     @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer User @relation("CustomerOrders", fields: [customerId], references: [id])
+  seller   User @relation("SellerOrders", fields: [sellerId], references: [id])
+
+  details DetailPesanan[]
+
+  @@index([customerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([isPaid])
+  @@index([createdAt])
+  @@map("pesanan")
+}
+
+
+model DetailPesanan {
+  id        String  @id @default(uuid())
+  pesananId String
+  menuId    String
+  adminId   String?
+
+  menuName  String @db.VarChar(150)
+  menuPrice Int
+  quantity  Int    @default(1)
+  subtotal  Int
+  notes     String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  pesanan Pesanan @relation(fields: [pesananId], references: [id], onDelete: Cascade)
+  menu    Menu    @relation(fields: [menuId], references: [id])
+  admin   User?   @relation("AdminSupervisedDetails", fields: [adminId], references: [id])
+
+  @@index([pesananId])
+  @@index([menuId])
+  @@map("detail_pesanan")
+}
+
+
+
+model Notifikasi {
+  id        String    @id @default(uuid())
+  userId    String
+  role      Role
+  title     String    @db.VarChar(150)
+  message   String    @db.Text
+  type      NotifType @default(info)
+  isRead    Boolean   @default(false)
+  pesananId String?
+  menuId    String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation("UserNotifikasi", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([role])
+  @@index([createdAt])
+  @@map("notifikasi")
+}

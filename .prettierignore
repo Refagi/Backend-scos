@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+
+# Prisma
+prisma/migrations/
+
+# Environment variables
+.env*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun-debug.log*
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache
+.cache/
+.parcel-cache/

@@ -1,0 +1,695 @@
+{
+  "info": {
+    "name": "SCOS API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/v1" },
+    { "key": "token_customer", "value": "" },
+    { "key": "token_seller", "value": "" },
+    { "key": "token_admin", "value": "" }
+  ],
+  "item": [
+      {
+      "name": "Kelola Akun",
+      "item": [
+        {
+          "name": "Get Daftar Akun",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun?role=seller&status=active",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun"],
+              "query": [
+                { "key": "role", "value": "seller", "description": "admin | seller | customer" },
+                { "key": "status", "value": "active", "description": "active | non_active" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Detail Akun",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun", ":userId"],
+              "variable": [
+                { "key": "userId", "value": "uuid-user-disini" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Akun Seller",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pak Budi\",\n  \"email\": \"pakbudi@gmail.com\",\n  \"phone\": \"081200000099\",\n  \"password\": \"seller123#\",\n  \"role\": \"seller\",\n  \"status\": \"active\",\n  \"storeName\": \"Kantin Pak Budi\",\n  \"description\": \"Kantin dengan menu masakan rumahan\",\n  \"location\": \"Gedung A - Lantai 1\",\n  \"isOpen\": true,\n  \"openLabel\": \"Buka hingga 15.00\",\n  \"qrisImage\": \"/qris/pakbudi.png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Tambah Akun Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Santoso\",\n  \"email\": \"budi@gmail.com\",\n  \"phone\": \"081300000099\",\n  \"password\": \"customer123#\",\n  \"role\": \"customer\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Edit Akun",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun", ":userId"],
+              "variable": [
+                { "key": "userId", "value": "uuid-user-disini" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pak Budi Updated\",\n  \"phone\": \"081200000088\",\n  \"status\": \"non_active\",\n  \"storeName\": \"Kantin Pak Budi Baru\",\n  \"location\": \"Gedung B - Lantai 2\",\n  \"isOpen\": false,\n  \"openLabel\": \"Tutup sementara\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Hapus Akun",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/akun/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "akun", ":userId"],
+              "variable": [
+                { "key": "userId", "value": "uuid-user-disini" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kelola Menu",
+      "item": [
+        {
+          "name": "Get Semua Menu",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu?sellerId=uuid-seller&category=Makanan_Berat",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "menu"],
+              "query": [
+                { "key": "sellerId", "value": "uuid-seller", "description": "UUID seller (opsional)" },
+                { "key": "category", "value": "Makanan_Berat", "description": "Makanan_Berat | Cemilan | Minuman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Edit Menu",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/:menuId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "menu", ":menuId"],
+              "variable": [
+                { "key": "menuId", "value": "uuid-menu-disini" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nasi Ayam Geprek Spesial\",\n  \"description\": \"Ayam geprek dengan sambal ekstra\",\n  \"price\": 17000,\n  \"category\": \"Makanan_Berat\",\n  \"isAvailable\": true,\n  \"stock\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "Hapus Menu",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/:menuId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "menu", ":menuId"],
+              "variable": [
+                { "key": "menuId", "value": "uuid-menu-disini" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kelola Pesanan",
+      "item": [
+        {
+          "name": "Get Semua Pesanan",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/pesanan?status=menunggu",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pesanan"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "menunggu",
+                  "description": "menunggu | ditolak | diterima | dimasak | siap | selesai"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Status Pesanan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/pesanan/:pesananId/status",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pesanan", ":pesananId", "status"],
+              "variable": [
+                { "key": "pesananId", "value": "uuid-pesanan-disini" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"diterima\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Hapus Pesanan",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/pesanan/:pesananId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pesanan", ":pesananId"],
+              "variable": [
+                { "key": "pesananId", "value": "uuid-pesanan-disini" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Laporan",
+      "item": [
+        {
+          "name": "Laporan Bulanan",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/laporan/bulanan?year=2026&month=6",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "laporan", "bulanan"],
+              "query": [
+                { "key": "year", "value": "2026" },
+                { "key": "month", "value": "6", "description": "1 - 12" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Menu Terlaris",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/laporan/menu-terlaris?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "laporan", "menu-terlaris"],
+              "query": [
+                { "key": "limit", "value": "10", "description": "Jumlah menu yang ditampilkan (default 10)" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Riwayat Transaksi Terakhir",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/laporan/transaksi-terakhir?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "laporan", "transaksi-terakhir"],
+              "query": [
+                { "key": "limit", "value": "20", "description": "Jumlah transaksi yang ditampilkan (default 20)" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Santoso\",\n  \"email\": \"budi@gmail.com\",\n  \"password\": \"customer123#\",\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi.customer@gmail.com\",\n  \"password\": \"customer123#\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Seller",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"umi@gmail.com\",\n  \"password\": \"penjual123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin123#\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh-token",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "Get Daftar Seller",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/customer/sellers",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "sellers"]
+            }
+          }
+        },
+        {
+          "name": "Get Menu Seller",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/customer/sellers/:sellerId/menu?category=Makanan_Berat",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "sellers", ":sellerId", "menu"],
+              "variable": [{ "key": "sellerId", "value": "uuid-seller-disini" }],
+              "query": [
+                { "key": "category", "value": "Makanan_Berat", "description": "Makanan_Berat | Cemilan | Minuman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buat Pesanan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/customer/pesanan",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "pesanan"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sellerId\": \"uuid-seller-disini\",\n  \"slot\": \"10:00 - 10:30\",\n  \"notes\": \"Tolong sambalnya dipisah ya\",\n  \"items\": [\n    {\n      \"menuId\": \"uuid-menu-disini\",\n      \"quantity\": 1,\n      \"notes\": \"Tidak pakai bawang\"\n    },\n    {\n      \"menuId\": \"uuid-menu-lain\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Riwayat Pesanan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/customer/pesanan?status=menunggu",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "pesanan"],
+              "query": [
+                { "key": "status", "value": "menunggu", "description": "menunggu | ditolak | diterima | dimasak | siap | selesai" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Detail Pesanan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/customer/pesanan/:pesananId",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "pesanan", ":pesananId"],
+              "variable": [{ "key": "pesananId", "value": "uuid-pesanan-disini" }]
+            }
+          }
+        },
+        {
+          "name": "Get Ringkasan Pesanan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/customer/pesanan/:pesananId/ringkasan",
+              "host": ["{{base_url}}"],
+              "path": ["customer", "pesanan", ":pesananId", "ringkasan"],
+              "variable": [{ "key": "pesananId", "value": "uuid-pesanan-disini" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seller",
+      "item": [
+        {
+          "name": "Menu",
+          "item": [
+            {
+              "name": "Get Semua Menu",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "url": {
+                  "raw": "{{base_url}}/seller/menu?category=Makanan_Berat",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "menu"],
+                  "query": [
+                    { "key": "category", "value": "Makanan_Berat", "description": "Makanan_Berat | Cemilan | Minuman" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Tambah Menu",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/seller/menu",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "menu"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nasi Ayam Geprek\",\n  \"description\": \"Ayam geprek dengan nasi putih hangat\",\n  \"price\": 15000,\n  \"category\": \"Makanan_Berat\",\n  \"image\": \"/menu/nasi_geprek.png\",\n  \"isAvailable\": true,\n  \"stock\": 50\n}"
+                }
+              }
+            },
+            {
+              "name": "Edit Menu",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/seller/menu/:menuId",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "menu", ":menuId"],
+                  "variable": [{ "key": "menuId", "value": "uuid-menu-disini" }]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"price\": 17000,\n  \"isAvailable\": false,\n  \"stock\": 0\n}"
+                }
+              }
+            },
+            {
+              "name": "Hapus Menu",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "url": {
+                  "raw": "{{base_url}}/seller/menu/:menuId",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "menu", ":menuId"],
+                  "variable": [{ "key": "menuId", "value": "uuid-menu-disini" }]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pesanan",
+          "item": [
+            {
+              "name": "Get Pesanan Masuk",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "url": {
+                  "raw": "{{base_url}}/seller/pesanan?status=menunggu",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "pesanan"],
+                  "query": [
+                    { "key": "status", "value": "menunggu", "description": "menunggu | ditolak | diterima | dimasak | siap | selesai" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Detail Pesanan",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "url": {
+                  "raw": "{{base_url}}/seller/pesanan/:pesananId",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "pesanan", ":pesananId"],
+                  "variable": [{ "key": "pesananId", "value": "uuid-pesanan-disini" }]
+                }
+              }
+            },
+            {
+              "name": "Update Status Pesanan",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/seller/pesanan/:pesananId/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["seller", "pesanan", ":pesananId", "status"],
+                  "variable": [{ "key": "pesananId", "value": "uuid-pesanan-disini" }]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"diterima\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Laporan Pesanan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{base_url}}/seller/laporan?from=2026-06-01&to=2026-06-30&status=selesai",
+              "host": ["{{base_url}}"],
+              "path": ["seller", "laporan"],
+              "query": [
+                { "key": "from", "value": "2026-06-01", "description": "Format: YYYY-MM-DD" },
+                { "key": "to", "value": "2026-06-30", "description": "Format: YYYY-MM-DD" },
+                { "key": "status", "value": "selesai", "description": "menunggu | ditolak | diterima | dimasak | siap | selesai" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SSE Stream",
+      "item": [
+        {
+          "name": "Connect SSE Stream",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/notifications/stream",
+            "header": [
+              { "key": "Accept", "value": "text/event-stream" },
+              { "key": "Cache-Control", "value": "no-cache" }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST Notifikasi",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": { "method": "GET", "url": "{{base_url}}/notifications" }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": { "method": "GET", "url": "{{base_url}}/notifications/unread-count" }
+        },
+        {
+          "name": "Mark One as Read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/notifications/{{notifId}}/read"
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": { "method": "PATCH", "url": "{{base_url}}/notifications/read-all" }
+        },
+        {
+          "name": "Delete All Notifications",
+          "request": { "method": "DELETE", "url": "{{base_url}}/notifications" }
+        }
+      ]
+    }
+  ]
+}
