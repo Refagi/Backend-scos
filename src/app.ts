@@ -35,8 +35,8 @@ app.use(
     origin: (origin) => {
       const allowedOrigins = [
         process.env.FRONTEND_URL,
-        'http://localhost:5173',
-        'http://localhost:3000',
+        'https://frontend-scos.vercel.app/',
+        'https://backend-scos-iota.vercel.app/',
       ].filter(Boolean);
 
       if (origin && origin.includes('vercel.app')) return origin;
