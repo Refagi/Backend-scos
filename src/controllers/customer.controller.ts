@@ -6,7 +6,7 @@ import { type Context } from 'hono'
 import type { User } from '@/models/user.model.js'
 import type { CreatePesananInput } from '@/models/order.model.js'
 import { MenuCategory, OrderStatus } from '@/generated/prisma/client.js'
-import type { PesananIdParam } from '@/validations/customer.validation'
+import type { PesananIdParam } from '@/validations/customer.validation.js'
 
 class CustomerController {
 

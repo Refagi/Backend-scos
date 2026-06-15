@@ -1,4 +1,3 @@
- import { Prisma } from '@/generated/prisma/client';
 import { Role, UserStatus, OrderStatus, MenuCategory } from '@/generated/prisma/client.js'
 
  export enum ValidationType {

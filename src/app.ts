@@ -2,12 +2,12 @@ import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import { cors } from 'hono/cors';
 import { compress } from 'hono/compress';
-import { logger } from '@/config/logger';
-import { loggerHandler } from '@/config/loggerHandler';
-import { config } from '@/config/config';
-import { errorHandler } from '@/middlewares/error';
-import { authRateLimiter } from '@/middlewares/rateLimiter';
-import { xssSanitizeMiddleware } from '@/middlewares/sanitize';
+import { logger } from '@/config/logger.js';
+import { loggerHandler } from '@/config/loggerHandler.js';
+import { config } from '@/config/config.js';
+import { errorHandler } from '@/middlewares/error.js';
+import { authRateLimiter } from '@/middlewares/rateLimiter.js';
+import { xssSanitizeMiddleware } from '@/middlewares/sanitize.js';
 import routes from '@/routes/v1/index.js'
 
 const app = new Hono();

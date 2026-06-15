@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma } from '@/generated/prisma/client.js';
 import moment, { type Moment } from 'moment';
 
 export type User = Prisma.UserGetPayload<{}>;
@@ -31,9 +31,9 @@ export enum TokenTypes {
 export type tokenTypes = 'ACCESS' | 'REFRESH'| 'RESET_PASSWORD' |  'VERIFY_EMAIL' | 'UPDATE_EMAIL';
 
 export interface TypeSaveToken {
-  token: string, 
-  userId: string, 
-  expires: Moment, 
+  token: string,
+  userId: string,
+  expires: Moment,
   type: tokenTypes,
   newEmail?: string,
   blacklisted?: boolean

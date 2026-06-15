@@ -1,12 +1,11 @@
 import { SignJWT, jwtVerify } from 'jose'
 import moment, { type Moment } from 'moment';
-import { config } from '@/config/config';
-import { type tokenTypes, type TypeSaveToken } from '@/models/token.model';
+import { config } from '@/config/config.js';
+import { type tokenTypes, type TypeSaveToken } from '@/models/token.model.js';
 import prisma from '@/../prisma/client.js';
-import { ApiError } from '@/utils/ApiError';
-import type { User, Token, JwtPayload } from '@/models/token.model';
+import { ApiError } from '@/utils/ApiError.js';
+import type { User, Token, JwtPayload } from '@/models/token.model.js';
 import httpStatusCode from 'http-status-codes';
-import { AdminService } from './index';
 
 
 class TokenService {

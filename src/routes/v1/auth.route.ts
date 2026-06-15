@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { AuthController } from "@/controllers/index.js";
-import { auth } from "@/middlewares/auth";
+import { auth } from "@/middlewares/auth.js";
 import { validateMiddlewares } from "@/middlewares/validate.js";
-import { login, register, forgotPassord  } from "@/validations/auth.validation";
+import { login, register, forgotPassord  } from "@/validations/auth.validation.js";
 
 const authRoute = new Hono();
 

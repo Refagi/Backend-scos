@@ -7,9 +7,9 @@ import type { User } from '@/models/user.model.js'
 import type { CreateMenuInput, UpdateMenuInput } from '@/models/menu.model.js'
 import type { UpdateOrderStatusInput } from '@/models/order.model.js'
 import { MenuCategory, OrderStatus } from '@/generated/prisma/client.js'
-import type { UpdateSellerTenantBody } from '@/models/tenant.model'
-import type { GetPesanan } from '@/models/pesanan.model'
-import type {  PesananIdParam, MenuIdParam, GetLaporanQuery } from '@/validations/seller.validation'
+import type { UpdateSellerTenantBody } from '@/models/tenant.model.js'
+import type { GetPesanan } from '@/models/pesanan.model.js'
+import type {  PesananIdParam, MenuIdParam, GetLaporanQuery } from '@/validations/seller.validation.js'
 
 class SellerController {
   static updateSellerTenant = catchAsync(async (c: Context) => {

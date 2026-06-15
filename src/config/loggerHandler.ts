@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'hono';
 import { logger  } from '@/config/logger.js'
-import { config } from '@/config/config';
+import { config } from '@/config/config.js';
 
 class LoggerHandler {
   public getMiddleware: MiddlewareHandler;
@@ -20,7 +20,7 @@ class LoggerHandler {
       if(status  < 400) {
         const message = `${ipFormat}${method} ${url} ${status} - ${duration}ms`;
         logger.info(message);
-      } 
+      }
       else {
         const errorMessage = c.get('errorMessage') || '';
         const message = `${ipFormat}${method} ${url} ${status} - ${duration}ms ${errorMessage ?  `message: ${errorMessage}`: ''}`;

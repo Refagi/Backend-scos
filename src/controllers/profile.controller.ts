@@ -1,9 +1,9 @@
 import type { Context } from 'hono'
-import { catchAsync } from '@/utils/catchAsync'
+import { catchAsync } from '@/utils/catchAsync.js'
 import httpStatusCode from 'http-status-codes';
-import { ProfileService } from '@/services/profile.service'
-import type { UpdateProfileBody, ChangePasswordBody } from '@/validations/profile.validation'
-import type { User } from '@/models/token.model';
+import { ProfileService } from '@/services/profile.service.js'
+import type { UpdateProfileBody, ChangePasswordBody } from '@/validations/profile.validation.js'
+import type { User } from '@/models/token.model.js';
 
 export class ProfileController {
 

@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma } from '@/generated/prisma/client.js';
 import { Role, UserStatus, OrderStatus, MenuCategory } from '@/generated/prisma/client.js'
 
 export type User = Prisma.UserGetPayload<{}>;

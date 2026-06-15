@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import type { Context, Next } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { ZodError } from 'zod';
-import { Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 import { HTTPException } from "hono/http-exception";
 
 class ErrorMiddleware {
@@ -64,7 +64,7 @@ class ErrorConverters extends ErrorMiddleware {
         logger.info('handlePrismaError');
         this.convertedError = this.handlePrismaError(error);
       } else {
-        
+
         if (config.env === 'development') {
           console.error('Unhandled Error Type:', error.constructor.name);
           console.error('Error details:', error);
@@ -125,13 +125,13 @@ class ErrorHandlers extends ErrorMiddleware {
       console.error(`Status Code: ${this.error.statusCode}`);
       console.error(`Message: ${this.error.message}`);
       console.error(`Operational: ${this.error.isOperational}`);
-    
+
     if (this.error.stack) {
       console.error('Stack Trace:');
       const stackLines = this.error.stack.split('\n').slice(0, 10);
       stackLines.forEach(line => console.error(`   ${line}`));
     }
-    
+
     logger.error(this.error, {
       statusCode: this.error.statusCode,
       isOperational: this.error.isOperational,

@@ -2,8 +2,8 @@ import type { Context } from 'hono'
 import { catchAsync } from '@/utils/catchAsync.js'
 import { ApiError } from '@/utils/ApiError.js'
 import httpStatusCode from 'http-status-codes'
-import { NotifikasiService } from '../services/notifikasi.service'
-import { type TandaiDibacaParams} from '@/validations/notifikasi.validation'
+import { NotifikasiService } from '../services/notifikasi.service.js'
+import { type TandaiDibacaParams} from '@/validations/notifikasi.validation.js'
 import type { User } from '@/models/user.model.js'
 
 class NotifikasiController {

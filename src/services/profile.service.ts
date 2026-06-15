@@ -1,8 +1,8 @@
 import prisma from '@/../prisma/client.js'
-import { ApiError } from '@/utils/ApiError'
+import { ApiError } from '@/utils/ApiError.js'
 import httpStatusCode from 'http-status-codes'
 import bcrypt from 'bcryptjs'
-import type { UpdateProfileBody, ChangePasswordBody } from '@/validations/profile.validation'
+import type { UpdateProfileBody, ChangePasswordBody } from '@/validations/profile.validation.js'
 
 export class ProfileService {
 

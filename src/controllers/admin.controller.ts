@@ -17,7 +17,7 @@ import type {
   LaporanBulananQuery,
   LimitQuery,
   CreateMenuInput
-} from '@/validations/admin.validation';
+} from '@/validations/admin.validation.js';
 
 class AdminController {
   static getDaftarAkun = catchAsync(async (c: Context) => {

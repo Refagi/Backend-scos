@@ -5,7 +5,7 @@ import { TokenServices, AuthServices } from '@/services/index.js';
 import { type  Context } from 'hono';
 import { setCookie, getCookie, deleteCookie } from 'hono/cookie';
 import type { RegisterBody } from '@/models/auth.model.js';
-import type { LoginBody, LogoutBody, ForgotPasswordBody, ResetPasswordBody } from '@/validations/auth.validation.js';
+import type { LoginBody, LogoutBody } from '@/validations/auth.validation.js';
 
 class AuthController {
 

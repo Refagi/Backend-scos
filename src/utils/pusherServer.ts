@@ -1,5 +1,5 @@
 import Pusher from 'pusher'
-import { config } from '@/config/config'
+import { config } from '@/config/config.js'
 
 export const pusherServer = new Pusher({
   appId:   process.env.PUSHER_APP_ID! || config.pusher.appId,

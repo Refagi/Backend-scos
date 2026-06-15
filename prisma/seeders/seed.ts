@@ -1,8 +1,8 @@
-import { AdminSeedService } from './services/admin-seed.service';
-import { CustomerSeedService } from './services/customer-seed.service';
-import { MenuSeedService } from './services/menu-seed.service';
-import { SellerSeedService } from './services/seller-seed.service';
-import { OrderSeedService } from './services/order.seed.service';
+import { AdminSeedService } from './services/admin-seed.service.js';
+import { CustomerSeedService } from './services/customer-seed.service.js';
+import { MenuSeedService } from './services/menu-seed.service.js';
+import { SellerSeedService } from './services/seller-seed.service.js';
+import { OrderSeedService } from './services/order.seed.service.js';
 
 async function main() {
 

@@ -4,7 +4,7 @@ import { ApiError } from '@/utils/ApiError.js'
 import { Prisma, OrderStatus, MenuCategory, Role } from '@/generated/prisma/client.js'
 import type { UpdateOrderStatusInput, CreatePesananInput  } from '@/models/order.model.js'
 import type { CreateMenuInput, UpdateMenuInput } from '@/models/menu.model.js'
-import { notifStatusBerubah } from './notifikasi.service'
+import { notifStatusBerubah } from './notifikasi.service.js'
 import type { UpdateSellerTenantBody } from '@/models/tenant.model.js'
 import type { GetSemuaPesananQuery } from '@/validations/admin.validation.js'
 

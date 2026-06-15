@@ -1,8 +1,8 @@
-import TokenServices from './tokens.service';
-import AuthServices from './auth.service';
-import AdminService from './admin.service';
-import SellerService from './seller.service';
-import CustomerService from './customer.service';
+import TokenServices from './tokens.service.js';
+import AuthServices from './auth.service.js';
+import AdminService from './admin.service.js';
+import SellerService from './seller.service.js';
+import CustomerService from './customer.service.js';
 
 export {
   TokenServices,

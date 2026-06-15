@@ -1,5 +1,5 @@
-import prisma from '@/../prisma/client'
-import { OrderStatus } from '@/generated/prisma/client'
+import prisma from '@/../prisma/client.js'
+import { OrderStatus } from '@/generated/prisma/client.js'
 
 export class OrderSeedService {
   public async execute(): Promise<void> {

@@ -1,5 +1,5 @@
-import prisma from '@/../prisma/client'
-import { MenuCategory } from '@/generated/prisma/client'
+import prisma from '@/../prisma/client.js'
+import { MenuCategory } from '@/generated/prisma/client.js'
 
 const MB = MenuCategory.Makanan_Berat
 const CE = MenuCategory.Cemilan

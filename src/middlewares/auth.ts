@@ -1,11 +1,11 @@
 import { jwtVerify } from 'jose'
 import httpStatusCode from 'http-status-codes';
-import { ApiError } from '@/utils/ApiError';
+import { ApiError } from '@/utils/ApiError.js';
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from 'hono/http-exception';
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import { config } from '@/config/config';
-import prisma from '../../prisma/client';
+import { config } from '@/config/config.js';
+import prisma from '../../prisma/client.js';
 import { getCookie } from 'hono/cookie'
 
 

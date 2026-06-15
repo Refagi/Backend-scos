@@ -1,11 +1,11 @@
-import { TokenServices, AdminService } from './index';
-import { ApiError } from '@/utils/ApiError';
+import { TokenServices, AdminService } from './index.js';
+import { ApiError } from '@/utils/ApiError.js';
 import httpStatusCode from 'http-status-codes';
-import prisma from '@/../prisma/client';
-import { TokenTypes } from '@/models/token.model';
-import type { LoginType, RegisterBody } from '@/models/auth.model';
+import prisma from '@/../prisma/client.js';
+import { TokenTypes } from '@/models/token.model.js';
+import type { LoginType, RegisterBody } from '@/models/auth.model.js';
 import bcrypt from 'bcryptjs'
-import { Role } from '@/generated/prisma/enums';
+import { Role } from '@/generated/prisma/enums.js';
 
 
 export class AuthServices {

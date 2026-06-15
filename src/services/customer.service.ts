@@ -12,7 +12,7 @@ import type {
 } from '@/models/order.model.js';
 import type { CreateMenuInput, UpdateMenuInput } from '@/models/menu.model.js';
 import { nanoid } from 'nanoid';
-import { notifPesananBaru, notifPembayaranDikirim } from './notifikasi.service';
+import { notifPesananBaru, notifPembayaranDikirim } from './notifikasi.service.js';
 
 class CustomerService {
   static async getDaftarSeller() {

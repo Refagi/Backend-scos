@@ -1,7 +1,7 @@
-import app from '@/app';
-import prisma from '../prisma/client';
-import { logger } from "@/config/logger";
-import { config } from '@/config/config';
+import app from '@/app.js';
+import prisma from '../prisma/client.js';
+import { logger } from "@/config/logger.js";
+import { config } from '@/config/config.js';
 import { serve } from '@hono/node-server';
 
 export class Server {

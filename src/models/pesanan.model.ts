@@ -1,4 +1,4 @@
-import { OrderStatus } from "@/generated/prisma/enums"
+import { OrderStatus } from "@/generated/prisma/enums.js"
 
 export interface GetPesanan {
   status?: OrderStatus

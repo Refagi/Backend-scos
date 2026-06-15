@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { auth } from '@/middlewares/auth'
-import { validateMiddlewares } from '@/middlewares/validate'
-import { ProfileController } from '@/controllers/profile.controller'
-import { updateProfileSchema, changePasswordSchema } from '@/validations/profile.validation'
+import { auth } from '@/middlewares/auth.js'
+import { validateMiddlewares } from '@/middlewares/validate.js'
+import { ProfileController } from '@/controllers/profile.controller.js'
+import { updateProfileSchema, changePasswordSchema } from '@/validations/profile.validation.js'
 
 const profileRoute = new Hono()
 

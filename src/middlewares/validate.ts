@@ -1,8 +1,8 @@
-import { ApiError } from '@/utils/ApiError';
+import { ApiError } from '@/utils/ApiError.js';
 import type { Context, Next } from 'hono';
 import { ZodError, type ZodType } from 'zod';
 import httpStatusCode from 'http-status-codes';
-import { ValidationType } from '@/models/auth.model';
+import { ValidationType } from '@/models/auth.model.js';
 
 const parsers = {
   [ValidationType.BODY]: async (c: Context) => await c.req.parseBody(),
@@ -32,23 +32,23 @@ export class ValidateMiddlewares {
             }
          }
     }
-    
+
     validateForm = (schema: ZodType) => {
         return this.createValidator(schema, ValidationType.BODY, 'parsedBody');
     };
-    
+
     validateQuery = (schema: ZodType) => {
         return this.createValidator(schema, ValidationType.QUERY, 'parsedQuery');
     };
-    
+
     validateJson = (schema: ZodType) => {
         return this.createValidator(schema, ValidationType.JSON, 'parsedJson');
     };
-    
+
     validateParam = (schema: ZodType) => {
         return this.createValidator(schema, ValidationType.PARAM, 'parsedParam');
     };
-    
+
     validateHeader = (schema: ZodType) => {
         return this.createValidator(schema, ValidationType.HEADER, 'parsedHeader');
     };

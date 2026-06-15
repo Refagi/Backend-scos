@@ -1,5 +1,5 @@
-import prisma from '@/../prisma/client'
-import { Role, UserStatus } from '@/generated/prisma/client'
+import prisma from '@/../prisma/client.js'
+import { Role, UserStatus } from '@/generated/prisma/client.js'
 import bcrypt from 'bcryptjs'
 
 export class AdminSeedService {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type{ TokenTypeConfig } from '@/models/token.model';
-import type { PusherTypeConfig } from '@/models/pusher.model';
+import type{ TokenTypeConfig } from '@/models/token.model.js';
+import type { PusherTypeConfig } from '@/models/pusher.model.js';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
