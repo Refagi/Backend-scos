@@ -19,14 +19,14 @@ class AuthController {
             setCookie(c, 'accessToken', tokens.access.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                sameSite: 'none',
                 path: '/v1',
                 maxAge: 60 * 60,
             });
             setCookie(c, 'refreshToken', tokens.refresh.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                sameSite: 'none',
                 path: '/v1',
                 maxAge: 60 * 60 * 24 * 30,
             });
@@ -51,14 +51,14 @@ class AuthController {
         setCookie(c, 'accessToken', tokens.access.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'none',
             path: '/v1',
             maxAge: 60 * 60 // 60 minutes
         });
         setCookie(c, 'refreshToken', tokens.refresh.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'none',
             path: '/v1',
             maxAge: 60 * 60 * 24 * 30 // 30 days
         });
@@ -88,14 +88,14 @@ class AuthController {
         setCookie(c, 'accessToken', newToken.access.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'none',
             path: '/v1',
             maxAge: 60 * 60 // 60 minutes
         });
         setCookie(c, 'refreshToken', newToken.refresh.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'none',
             path: '/v1',
             maxAge: 60 * 60 * 24 * 30 // 30 days
         });
