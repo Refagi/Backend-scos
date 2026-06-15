@@ -1,5 +1,6 @@
 import prisma from '@/../prisma/client'
 import { Role, UserStatus } from '@/generated/prisma/client'
+import bcrypt from 'bcryptjs'
 
 export class AdminSeedService {
   private readonly email: string
@@ -36,10 +37,8 @@ export class AdminSeedService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    const hash = await Bun.password.hash(password, {
-        algorithm: 'bcrypt',
-        cost: 10
-    })
+    const salt = await bcrypt.genSalt(12)
+    const hash = await bcrypt.hash(password, salt)
     return hash
   }
 }

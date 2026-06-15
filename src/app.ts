@@ -12,15 +12,15 @@ import routes from '@/routes/v1/index.js'
 
 const app = new Hono();
 
-if (config.env !== 'test') {
+if (config.env !== 'test' && config.env !== 'production') {
   app.use(loggerHandler)
 }
 
 app.use('*', secureHeaders({
     contentSecurityPolicy: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
     },
     xFrameOptions: 'DENY',
     xContentTypeOptions: 'nosniff',
@@ -32,7 +32,16 @@ app.use('*', xssSanitizeMiddleware)
 app.use(
   '/v1/*',
   cors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    origin: (origin) => {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        'http://localhost:5173',
+        'http://localhost:3000',
+      ].filter(Boolean);
+
+      if (origin && origin.includes('vercel.app')) return origin;
+      return allowedOrigins.includes(origin) ? origin : 'http://localhost:5173';
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -46,8 +55,9 @@ app.route('/v1', routes)
 app.get('/v1/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
 app.get('/v1', (c) => {
-  logger.info('Root endpoint accessed');
-  return c.text('Hello Bun!')
+  return c.json({
+    message: 'SCOS API is running',
+  });
 });
 
 if(config.env === 'production') {

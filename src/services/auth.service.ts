@@ -4,6 +4,9 @@ import httpStatusCode from 'http-status-codes';
 import prisma from '@/../prisma/client';
 import { TokenTypes } from '@/models/token.model';
 import type { LoginType, RegisterBody } from '@/models/auth.model';
+import bcrypt from 'bcryptjs'
+import { Role } from '@/generated/prisma/enums';
+
 
 export class AuthServices {
    static async register(body: RegisterBody) {
@@ -15,13 +18,13 @@ export class AuthServices {
             throw new ApiError(httpStatusCode.CONFLICT, 'Email sudah digunakan');
         }
 
-        const hashedPassword = await Bun.password.hash(body.password, {algorithm: 'bcrypt', cost: 10});
-
+        const salt = await bcrypt.genSalt(12)
+        const hashedPassword = await bcrypt.hash(body.password, salt)
         const userData: RegisterBody = {
             name: body.name,
             email: body.email,
             password: hashedPassword,
-            role: body.role,
+            role: body.role || Role.customer,
             status: 'active',
         };
 
@@ -45,7 +48,7 @@ export class AuthServices {
             throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Password belum diatur, silahkan atur password terlebih dahulu!');
         }
 
-        const validPassword = await Bun.password.verify(password, user.password);
+        const validPassword = await bcrypt.compare(password, user.password);
 
         if (!validPassword) {
             throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Email atau Password salah!');

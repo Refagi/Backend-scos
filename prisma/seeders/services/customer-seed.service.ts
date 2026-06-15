@@ -1,5 +1,6 @@
 import prisma from '@/../prisma/client';
 import { Role, UserStatus } from '@/generated/prisma/client';
+import bcrypt from 'bcryptjs'
 
 export class CustomerSeedService {
   public async execute(): Promise<void> {
@@ -36,9 +37,8 @@ export class CustomerSeedService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return Bun.password.hash(password, {
-      algorithm: 'bcrypt',
-      cost: 10,
-    });
+    const salt = await bcrypt.genSalt(12)
+    const hash = await bcrypt.hash(password, salt)
+    return hash
   }
 }

@@ -25,7 +25,7 @@ class AppConfig {
   private databaseUrl: string | null = null;
 
   constructor() {
-    const parsedEnv = envSchema.safeParse(Bun.env);
+    const parsedEnv = envSchema.safeParse(process.env);
 
     if (!parsedEnv.success) {
       console.error("Environment variables validation failed: ", z.treeifyError(parsedEnv.error));

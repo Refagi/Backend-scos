@@ -1,7 +1,7 @@
 import prisma from '@/../prisma/client.js'
 import { ApiError } from '@/utils/ApiError'
 import httpStatusCode from 'http-status-codes'
-// import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import type { UpdateProfileBody, ChangePasswordBody } from '@/validations/profile.validation'
 
 export class ProfileService {
@@ -52,13 +52,14 @@ export class ProfileService {
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (!user) throw new ApiError(httpStatusCode.NOT_FOUND, 'Akun tidak ditemukan')
 
-    const match = await Bun.password.verify(body.currentPassword, user.password)
+    const match = await bcrypt.compare(body.currentPassword, user.password!);
     if (!match) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Kata sandi saat ini salah')
 
-    const hashed = await Bun.password.hash(body.newPassword, {algorithm: 'bcrypt', cost: 10});
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(body.newPassword, salt);
     await prisma.user.update({
       where: { id: userId },
-      data: { password: hashed, updatedAt: new Date() },
+      data: { password: hashedPassword, updatedAt: new Date() },
     })
 
     return { message: 'Kata sandi berhasil diperbarui' }
