@@ -6,6 +6,7 @@
     "start": "node dist/index.js",
     "dev": "bun run --hot src/index.ts",
     "build": "tsc",
+    "postinstall": "prisma generate",
     "lint": "eslint .",
     "lint:fix": "eslint src/**/*.ts --fix",
     "prettier-format": "prettier --config .prettierrc src/**/*.ts --write",
