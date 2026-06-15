@@ -10,7 +10,7 @@ export default defineConfig({
     seed: "bun run prisma/seeders/seed.ts"
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: process.env["DATABASE_URL"]!,
     shadowDatabaseUrl: process.env["DIRECT_DATABASE_URL"],
   },
 });
