@@ -12,6 +12,9 @@
     "prettier:fix": "prettier --write src/**/*.ts",
     "lint-staged": "lint-staged"
   },
+  "engines": {
+    "node": "24.x"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/bcryptjs": "^2.4.6",
