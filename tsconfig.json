@@ -8,8 +8,11 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "~/*": ["./*"],
     },
+    "outDir": "dist",
+    "rootDir": ".",
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -31,7 +34,11 @@
     "noPropertyAccessFromIndexSignature": false
   },
   "include": [
-    "src",
-    "prisma", "prisma/client.ts"
+    "src/**/*",
+    "prisma/**/*"
   ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { SseController, NotifikasiController } from '@/controllers/index.js'
+import {  NotifikasiController } from '@/controllers/index.js'
 import { auth } from '@/middlewares/auth.js'
 
 const notifikasiRouter = new Hono()

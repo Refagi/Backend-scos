@@ -3,6 +3,7 @@ import { catchAsync } from '@/utils/catchAsync.js'
 import { ApiError } from '@/utils/ApiError.js'
 import httpStatusCode from 'http-status-codes'
 import { NotifikasiService } from '../services/notifikasi.service'
+import { type TandaiDibacaParams} from '@/validations/notifikasi.validation'
 import type { User } from '@/models/user.model.js'
 
 class NotifikasiController {
@@ -25,10 +26,10 @@ class NotifikasiController {
 
   static tandaiDibaca = catchAsync(async (c: Context) => {
     const user    = c.get('user') as User
-    const notifId = c.req.param('notifId')
+    const param = c.get('parsedParam') as TandaiDibacaParams
     if (!user) throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Tidak terautentikasi')
 
-    await NotifikasiService.tandaiDibaca(notifId, user.id)
+    await NotifikasiService.tandaiDibaca(param.notifId, user.id)
     return c.json({ status: httpStatusCode.OK, message: 'Notifikasi ditandai sudah dibaca' })
   })
 
