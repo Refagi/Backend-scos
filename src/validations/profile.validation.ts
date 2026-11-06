@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { imageField } from './upload.validation.js'
 
 export const updateProfileSchema = z.object({
   name:  z.string().min(2).optional(),
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   phone: z.string().min(9).optional(),
   // seller only
   storeName:   z.string().min(3).optional(),
@@ -10,7 +11,7 @@ export const updateProfileSchema = z.object({
   location:    z.string().min(3).optional(),
   isOpen:      z.boolean().optional(),
   openLabel:   z.string().optional(),
-  qrisImage:   z.string().optional(),
+  qrisImage:   imageField,
 })
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
 

@@ -4,96 +4,110 @@ import httpStatusCode from 'http-status-codes';
 import prisma from '@/../prisma/client.js';
 import { TokenTypes } from '@/models/token.model.js';
 import type { LoginType, RegisterBody } from '@/models/auth.model.js';
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 import { Role } from '@/generated/prisma/enums.js';
 
-
 export class AuthServices {
-   static async register(body: RegisterBody) {
-        const existing = await prisma.user.findUnique({
-            where: { email: body.email }
-        });
+  static async register(body: RegisterBody) {
+    const existing = await prisma.user.findUnique({
+      where: { email: body.email },
+    });
 
-        if (existing) {
-            throw new ApiError(httpStatusCode.CONFLICT, 'Email sudah digunakan');
-        }
-
-        const salt = await bcrypt.genSalt(12)
-        const hashedPassword = await bcrypt.hash(body.password, salt)
-        const userData: RegisterBody = {
-            name: body.name,
-            email: body.email,
-            password: hashedPassword,
-            role: body.role || Role.customer,
-            status: 'active',
-        };
-
-        const user = await prisma.user.create({ data: userData });
-
-        return user;
+    if (existing) {
+      throw new ApiError(httpStatusCode.StatusCodes.CONFLICT, 'Email sudah digunakan');
     }
 
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(body.password, salt);
+    const userData: RegisterBody = {
+      name: body.name,
+      email: body.email,
+      password: hashedPassword,
+      role: body.role || Role.customer,
+      status: 'active',
+    };
 
-    static async login(userBody: LoginType) {
-        const { email, password } = userBody;
-        const user = await prisma.user.findUnique({
-            where: {email}
-        })
+    const user = await prisma.user.create({ data: userData });
 
-        if (!user) {
-            throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Email atau Password salah!');
-        }
+    return user;
+  }
 
-        if (!user.password) {
-            throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Password belum diatur, silahkan atur password terlebih dahulu!');
-        }
+  static async login(userBody: LoginType) {
+    const { email, password } = userBody;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-        const validPassword = await bcrypt.compare(password, user.password);
-
-        if (!validPassword) {
-            throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Email atau Password salah!');
-        }
-
-        await prisma.token.deleteMany({
-            where: { userId: user.id, type: 'REFRESH' }
-        })
-
-        return user;
+    if (!user) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.UNAUTHORIZED,
+        'Email atau Password salah!'
+      );
     }
 
-    static async logout(refreshToken: string) {
-        const getRefreshToken = await prisma.token.findFirst({
-            where: { token: refreshToken, type: 'REFRESH', blacklisted: false }
-        });
+    if (!user.password) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.UNAUTHORIZED,
+        'Password belum diatur, silahkan atur password terlebih dahulu!'
+      );
+    }
 
-        await prisma.user.update({
-            where: { id: getRefreshToken?.userId },
-            data: { status: 'active' }
-        })
+    const validPassword = await bcrypt.compare(password, user.password);
 
-        if (!getRefreshToken) {
-            throw new ApiError(httpStatusCode.NOT_FOUND, 'Kamu telah logout!');
-        }
-        await prisma.token.delete({ where: { id: getRefreshToken.id } });
-    };
+    if (!validPassword) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.UNAUTHORIZED,
+        'Email atau Password salah!'
+      );
+    }
 
-    static async refreshToken (tokens: string) {
-        try {
-            const refreshTokenDoc = await TokenServices.verifyToken(tokens, TokenTypes.REFRESH);
+    await prisma.token.deleteMany({
+      where: { userId: user.id, type: 'REFRESH' },
+    });
 
-            if (!refreshTokenDoc) {
-                throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Token tidak valid!');
-            }
+    return user;
+  }
 
-            await prisma.token.delete({where: { id: refreshTokenDoc.id }});
+  static async logout(refreshToken: string) {
+    const getRefreshToken = await prisma.token.findFirst({
+      where: { token: refreshToken, type: 'REFRESH', blacklisted: false },
+    });
 
-            const newToken = await TokenServices.generateAuthTokens(refreshTokenDoc.userId);
-            return newToken;
-        } catch (error) {
-            throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Silahkan lakukan verifikasi!');
-        }
-    };
+    await prisma.user.update({
+      where: { id: getRefreshToken?.userId },
+      data: { status: 'active' },
+    });
 
+    if (!getRefreshToken) {
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Kamu telah logout!');
+    }
+    await prisma.token.delete({ where: { id: getRefreshToken.id } });
+  }
+
+  static async refreshToken(tokens: string) {
+    try {
+      const refreshTokenDoc = await TokenServices.verifyToken(
+        tokens,
+        TokenTypes.REFRESH
+      );
+
+      if (!refreshTokenDoc) {
+        throw new ApiError(httpStatusCode.StatusCodes.UNAUTHORIZED, 'Token tidak valid!');
+      }
+
+      await prisma.token.delete({ where: { id: refreshTokenDoc.id } });
+
+      const newToken = await TokenServices.generateAuthTokens(
+        refreshTokenDoc.userId
+      );
+      return newToken;
+    } catch (error) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.UNAUTHORIZED,
+        'Silahkan lakukan verifikasi!'
+      );
+    }
+  }
 }
 
 export default AuthServices;

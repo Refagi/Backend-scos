@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type{ TokenTypeConfig } from '@/models/token.model.js';
 import type { PusherTypeConfig } from '@/models/pusher.model.js';
+import type { CloudinaryTypeConfig } from '@/models/cloudinary.model.js';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
@@ -17,6 +18,9 @@ const envSchema = z.object({
   PUSHER_KEY: z.string().trim().min(1, { message: 'PUSHER_KEY is required' }),
   PUSHER_SECRET: z.string().trim().min(1, { message: 'PUSHER_SECRET is required' }),
   PUSHER_CLUSTER: z.string().trim().min(1, { message: 'PUSHER_CLUSTER is required' }),
+  CLOUDINARY_CLOUD_NAME: z.string().trim().min(1, { message: 'CLOUDINARY_CLOUD_NAME is required' }),
+  CLOUDINARY_API_KEY: z.string().trim().min(1, { message: 'CLOUDINARY_API_KEY is required' }),
+  CLOUDINARY_API_SECRET: z.string().trim().min(1, { message: 'CLOUDINARY_API_SECRET is required' }),
 
 });
 
@@ -82,6 +86,13 @@ class AppConfig {
       key: this.typeEnv.PUSHER_KEY,
       secret: this.typeEnv.PUSHER_SECRET,
       cluster: this.typeEnv.PUSHER_CLUSTER
+    }
+  }
+  get cloudinary(): CloudinaryTypeConfig {
+    return {
+      cloudName: this.typeEnv.CLOUDINARY_CLOUD_NAME,
+      apiKey: this.typeEnv.CLOUDINARY_API_KEY,
+      apiSecret: this.typeEnv.CLOUDINARY_API_SECRET
     }
   }
   get fe(): string {

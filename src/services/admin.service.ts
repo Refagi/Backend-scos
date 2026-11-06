@@ -1,4 +1,5 @@
 import httpStatusCode from 'http-status-codes'
+import bcrypt from 'bcryptjs';
 import prisma from '@/../prisma/client.js'
 import { ApiError } from '@/utils/ApiError.js'
 import { Role, UserStatus, OrderStatus, MenuCategory } from '@/generated/prisma/client.js'
@@ -13,29 +14,34 @@ class AdminService {
   static async tambahAkun(body: CreateUserInput) {
     const existing = await prisma.user.findUnique({ where: { email: body.email } })
     if (existing) {
-      throw new ApiError(httpStatusCode.CONFLICT, 'Email sudah digunakan')
+      throw new ApiError(httpStatusCode.StatusCodes.CONFLICT, 'Email sudah digunakan')
     }
 
     if (body.role === Role.seller) {
       if (!body.storeName || !body.location) {
-        throw new ApiError(httpStatusCode.BAD_REQUEST, 'storeName dan location wajib diisi untuk seller')
+        throw new ApiError(httpStatusCode.StatusCodes.BAD_REQUEST, 'storeName dan location wajib diisi untuk seller')
       }
     }
+
+     const salt = await bcrypt.genSalt(12);
+     const hashedPassword = await bcrypt.hash(body.password, salt);
 
     return prisma.user.create({
       data: {
         name: body.name,
         email: body.email,
         phone: body.phone,
-        password: body.password,
+        password: hashedPassword,
         role: body.role,
         status: body.status ?? UserStatus.active,
+
         // seller fields
         storeName: body.storeName,
         description: body.description,
         location: body.location,
         isOpen: body.isOpen ?? true,
         openLabel: body.openLabel,
+        avatar: body.avatar,
         logo: body.logo,
         image: body.image,
         qrisImage: body.qrisImage,
@@ -46,16 +52,16 @@ class AdminService {
   static async editAkun(userId: string, body: UpdateUserInput) {
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (user?.role === Role.admin) {
-      throw new ApiError(httpStatusCode.BAD_REQUEST, 'Admin tidak bisa edit admin')
+      throw new ApiError(httpStatusCode.StatusCodes.BAD_REQUEST, 'Admin tidak bisa edit admin')
     }
     if (!user) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Akun tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Akun tidak ditemukan')
     }
 
     if (body.email) {
       const existing = await prisma.user.findUnique({ where: { email: body.email } })
       if (existing && existing.id !== userId) {
-        throw new ApiError(httpStatusCode.CONFLICT, 'Email sudah digunakan')
+        throw new ApiError(httpStatusCode.StatusCodes.CONFLICT, 'Email sudah digunakan')
       }
     }
 
@@ -68,10 +74,10 @@ class AdminService {
   static async hapusAkun(userId: string, currentAdminId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (!user) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Akun tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Akun tidak ditemukan')
     }
     if (user.role === Role.admin && user.id !== currentAdminId) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Akun admin tidak dapat dihapus')
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Akun admin tidak dapat dihapus')
     }
 
    return await prisma.user.delete({ where: { id: userId } })
@@ -130,7 +136,7 @@ static async tambahMenu(body: CreateMenuInput) {
   })
 
   if (!seller) {
-    throw new ApiError(httpStatusCode.NOT_FOUND, 'Seller tidak ditemukan')
+    throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Seller tidak ditemukan')
   }
 
   const existing = await prisma.menu.findFirst({
@@ -144,7 +150,7 @@ static async tambahMenu(body: CreateMenuInput) {
   })
 
   if (existing) {
-    throw new ApiError(httpStatusCode.CONFLICT, 'Menu dengan nama tersebut sudah ada untuk seller ini')
+    throw new ApiError(httpStatusCode.StatusCodes.CONFLICT, 'Menu dengan nama tersebut sudah ada untuk seller ini')
   }
 
   return prisma.menu.create({
@@ -195,7 +201,7 @@ static async tambahMenu(body: CreateMenuInput) {
     })
 
     if (!user) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Akun tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Akun tidak ditemukan')
     }
 
     return user
@@ -229,7 +235,7 @@ static async tambahMenu(body: CreateMenuInput) {
       },
     })
     if (!menu) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
     }
 
   return menu
@@ -238,7 +244,7 @@ static async tambahMenu(body: CreateMenuInput) {
   static async editMenu(menuId: string, body: UpdateMenuInput) {
     const menu = await prisma.menu.findUnique({ where: { id: menuId } })
     if (!menu) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
     }
 
     return prisma.menu.update({
@@ -253,7 +259,7 @@ static async tambahMenu(body: CreateMenuInput) {
   static async hapusMenu(menuId: string) {
     const menu = await prisma.menu.findUnique({ where: { id: menuId } })
     if (!menu) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
     }
 
     await prisma.menu.delete({ where: { id: menuId } })
@@ -310,7 +316,7 @@ static async tambahMenu(body: CreateMenuInput) {
   static async updateStatusPesanan(pesananId: string, body: UpdateOrderStatusInput) {
     const pesanan = await prisma.pesanan.findUnique({ where: { id: pesananId } })
     if (!pesanan) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan')
     }
 
     return prisma.pesanan.update({
@@ -327,7 +333,7 @@ static async tambahMenu(body: CreateMenuInput) {
   static async hapusPesanan(pesananId: string) {
     const pesanan = await prisma.pesanan.findUnique({ where: { id: pesananId } })
     if (!pesanan) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan')
     }
 
     await prisma.pesanan.delete({ where: { id: pesananId } })
@@ -471,7 +477,7 @@ static async tambahMenu(body: CreateMenuInput) {
   }
 
   static async getGrafikPesananMingguan() {
-    // Ambil 7 hari ke belakang dari hari ini
+    // 7 hari ke belakang dari hari ini
     const days = Array.from({ length: 7 }, (_, i) => {
       const day = new Date()
       day.setDate(day.getDate() - (6 - i))

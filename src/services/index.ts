@@ -3,11 +3,13 @@ import AuthServices from './auth.service.js';
 import AdminService from './admin.service.js';
 import SellerService from './seller.service.js';
 import CustomerService from './customer.service.js';
+import UploadService from './upload.service.js';
 
 export {
   TokenServices,
   AuthServices,
   AdminService,
   SellerService,
-  CustomerService
+  CustomerService,
+  UploadService,
 }

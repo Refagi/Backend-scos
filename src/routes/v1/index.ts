@@ -6,6 +6,7 @@ import cusomerRoute from './customer.route.js';
 import sellerRoute from './seller.route.js';
 import notifikasiRoute from './notifikasi.route.js';
 import profileRoute from './profile.route.js';
+import uploadRoute from './upload.route.js';
 
 const app = new Hono();
 app.route('/auth', authRoute);
@@ -14,6 +15,8 @@ app.route('/customer', cusomerRoute);
 app.route('/seller', sellerRoute);
 app.route('/notifications', notifikasiRoute);
 app.route('/profile', profileRoute);
+app.route('/uploads', uploadRoute);
+
 
 
 export default app;

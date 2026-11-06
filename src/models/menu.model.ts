@@ -7,7 +7,7 @@ export type CreateMenuInput = {
   description?: string
   price: number
   category: MenuCategory
-  image?: string
+  image?: string | null
   isAvailable?: boolean
   stock?: number
 }

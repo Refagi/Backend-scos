@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Role, UserStatus, OrderStatus, MenuCategory } from '@/generated/prisma/client.js'
+import { imageField } from './upload.validation.js'
 
 
 export const userIdParam = z.object({
@@ -32,7 +33,11 @@ export const tambahAkunSchema = z.object({
   location: z.string().min(3, 'Lokasi minimal 3 karakter').optional(),
   isOpen: z.boolean().optional(),
   openLabel: z.string().optional(),
-  qrisImage: z.string().optional(),
+  // gambar (hasil upload Cloudinary; null/'' = hapus)
+  avatar: imageField,
+  logo: imageField,
+  image: imageField,
+  qrisImage: imageField,
 }).refine(data => {
   if (data.role === Role.seller) {
     return !!data.storeName && !!data.location
@@ -55,7 +60,11 @@ export const editAkunSchema = z.object({
   location: z.string().min(3).optional(),
   isOpen: z.boolean().optional(),
   openLabel: z.string().optional(),
-  qrisImage: z.string().optional(),
+  // gambar (hasil upload Cloudinary; null/'' = hapus)
+  avatar: imageField,
+  logo: imageField,
+  image: imageField,
+  qrisImage: imageField,
 })
 export type EditAkunBody = z.infer<typeof editAkunSchema>
 
@@ -74,7 +83,7 @@ export const createMenuSchema = z.object({
   description: z.string().max(500).optional(),
   price: z.number().int().positive('Harga harus lebih dari 0'),
   category: z.enum(MenuCategory),
-  image: z.url('Image harus berupa URL yang valid').optional().or(z.literal('')),
+  image: imageField,
   stock: z.number().int().min(0).optional().default(0),
   isAvailable: z.boolean().optional().default(true),
 })
@@ -86,7 +95,7 @@ export const editMenuSchema = z.object({
   description: z.string().optional(),
   price: z.number().int().positive('Harga harus lebih dari 0').optional(),
   category: z.enum(MenuCategory).optional(),
-  image: z.string().optional(),
+  image: imageField,
   isAvailable: z.boolean().optional(),
   stock: z.number().int().min(0).optional(),
 })

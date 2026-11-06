@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MenuCategory, OrderStatus } from '@/generated/prisma/client.js'
+import { imageField } from './upload.validation.js'
 
 export const menuIdParam = z.object({
   menuId: z.uuid('menuId harus berupa UUID'),
@@ -16,7 +17,7 @@ export const tambahMenuSchema = z.object({
   description: z.string().optional(),
   price: z.number().int().positive('Harga harus lebih dari 0'),
   category: z.enum(MenuCategory, { message: 'Kategori tidak valid' }),
-  image: z.string().optional(),
+  image: imageField,
   isAvailable: z.boolean().optional(),
   stock: z.number().int().min(0).optional(),
 })
@@ -27,7 +28,7 @@ export const editMenuSchema = z.object({
   description: z.string().optional(),
   price: z.number().int().positive().optional(),
   category: z.enum(MenuCategory).optional(),
-  image: z.string().optional(),
+  image: imageField,
   isAvailable: z.boolean().optional(),
   stock: z.number().int().min(0).optional(),
 })
@@ -61,9 +62,9 @@ export const updateSellerTenantSchema = z.object({
   location:    z.string().min(3).optional(),
   isOpen:      z.boolean().optional(),
   openLabel:   z.string().optional(),
-  logo:        z.string().optional(),
-  image:       z.string().optional(),
-  qrisImage:   z.string().optional(),
+  logo:        imageField,
+  image:       imageField,
+  qrisImage:   imageField,
 })
 export type UpdateSellerTenantBody = z.infer<typeof updateSellerTenantSchema>
 
