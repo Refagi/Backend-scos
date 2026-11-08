@@ -8,6 +8,7 @@ import {
   getMenuSellerQuerySchema,
   getRiwayatPesananQuerySchema,
   buatPesananSchema,
+  konfirmasiBayarSchema,
 } from '@/validations/customer.validation.js'
 
 const customerRoute = new Hono()
@@ -40,6 +41,7 @@ customerRoute.patch(
   '/pesanan/:pesananId/konfirmasi-bayar',
   auth(['customer']),
   validateMiddlewares.validateParam(pesananIdParam),
+  validateMiddlewares.validateJson(konfirmasiBayarSchema),
   CustomerController.konfirmasiPembayaran
 )
 

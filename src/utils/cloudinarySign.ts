@@ -1,9 +1,8 @@
 import { createHash } from 'node:crypto';
 
 /**
- * docs
  * Membuat signature untuk upload Cloudinary.
- * Aturannya: urutkan parameter berdasarkan nama, gabungkan "k=v" dengan "&",
+ * Aturan: urutkan parameter berdasarkan nama, gabungkan "k=v" dengan "&",
  * tambahkan API secret di akhir, lalu SHA-1 (hex).
  * `file`, `api_key`, `resource_type`, dan `cloud_name` TIDAK ikut ditandatangani.
  */

@@ -18,5 +18,4 @@ app.route('/profile', profileRoute);
 app.route('/uploads', uploadRoute);
 
 
-
 export default app;

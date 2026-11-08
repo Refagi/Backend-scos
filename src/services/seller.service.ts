@@ -20,9 +20,9 @@ class SellerService {
 
   static async updateSellerTenant(userId: string, body: UpdateSellerTenantBody) {
   const user = await prisma.user.findUnique({ where: { id: userId } })
-  if (!user) throw new ApiError(httpStatusCode.NOT_FOUND, 'Akun tidak ditemukan')
+  if (!user) throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Akun tidak ditemukan')
   if (user.role !== Role.seller) {
-    throw new ApiError(httpStatusCode.FORBIDDEN, 'Hanya seller yang dapat mengubah data toko')
+    throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Hanya seller yang dapat mengubah data toko')
   }
 
   return prisma.user.update({
@@ -59,10 +59,10 @@ class SellerService {
   static async editMenu(sellerId: string, menuId: string, body: UpdateMenuInput) {
     const menu = await prisma.menu.findUnique({ where: { id: menuId } })
     if (!menu) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
     }
     if (menu.sellerId !== sellerId) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
     }
 
     return prisma.menu.update({
@@ -77,10 +77,10 @@ class SellerService {
   static async hapusMenu(sellerId: string, menuId: string) {
     const menu = await prisma.menu.findUnique({ where: { id: menuId } })
     if (!menu) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
     }
     if (menu.sellerId !== sellerId) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
     }
 
     return await prisma.menu.delete({ where: { id: menuId } })
@@ -98,8 +98,8 @@ class SellerService {
 
    static async getDetailMenu(sellerId: string, menuId: string) {
     const menu = await prisma.menu.findUnique({ where: { id: menuId } })
-    if (!menu) throw new ApiError(httpStatusCode.NOT_FOUND, 'Menu tidak ditemukan')
-    if (menu.sellerId !== sellerId) throw new ApiError(httpStatusCode.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
+    if (!menu) throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Menu tidak ditemukan')
+    if (menu.sellerId !== sellerId) throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Anda tidak memiliki akses ke menu ini')
     return menu
   }
 
@@ -117,7 +117,6 @@ class SellerService {
     ...(status && { status }),
   };
 
-  // Hitung total
   const total = await prisma.pesanan.count({ where });
 
   const pesanan = await prisma.pesanan.findMany({
@@ -198,10 +197,10 @@ class SellerService {
     })
 
     if (!pesanan) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan')
     }
     if (pesanan.sellerId !== sellerId) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Anda tidak memiliki akses ke pesanan ini')
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Anda tidak memiliki akses ke pesanan ini')
     }
 
     return pesanan
@@ -210,10 +209,10 @@ class SellerService {
   static async updateStatusPesanan(sellerId: string, pesananId: string, body: UpdateOrderStatusInput) {
     const pesanan = await prisma.pesanan.findUnique({ where: { id: pesananId }, include: { seller: { select: { storeName: true } } } })
     if (!pesanan) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan')
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan')
     }
     if (pesanan.sellerId !== sellerId) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Pesanan bukan milik toko Anda')
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Pesanan bukan milik toko Anda')
     }
 
     const ALLOWED_TRANSITIONS: Record<string, OrderStatus[]> = {
@@ -228,14 +227,29 @@ class SellerService {
     const allowed = ALLOWED_TRANSITIONS[pesanan.status] ?? []
     if (!allowed.includes(body.status)) {
       throw new ApiError(
-        httpStatusCode.BAD_REQUEST,
+        httpStatusCode.StatusCodes.BAD_REQUEST,
         `Tidak bisa mengubah status dari '${pesanan.status}' ke '${body.status}'`,
       )
     }
 
+    // Pesanan QRIS baru boleh diterima setelah customer mengirim bukti pembayaran.
+    if (body.status === 'diterima' && pesanan.paymentMethod === 'qris' && !pesanan.isPaid) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.BAD_REQUEST,
+        'Pesanan QRIS belum dibayar. Tunggu customer mengirim bukti pembayaran.',
+      )
+    }
+
+    // Pesanan tunai: dianggap lunas saat selesai (tunai diterima ketika diantar/diambil).
+    const cashCollected = body.status === 'selesai' && pesanan.paymentMethod === 'cash' && !pesanan.isPaid
+
     const updated = await prisma.pesanan.update({
       where: { id: pesananId },
-      data: { status: body.status, updatedAt: new Date() },
+      data: {
+        status: body.status,
+        updatedAt: new Date(),
+        ...(cashCollected && { isPaid: true, paidAt: new Date() }),
+      },
       include: {
         customer: { select: { id: true, name: true, avatar: true } },
         details: {
@@ -251,6 +265,9 @@ class SellerService {
       pesananId:   updated.id,
       status:      body.status,
       sellerName:  pesanan.seller?.storeName ?? 'Seller',
+      orderType:     pesanan.orderType,
+      tableNumber:   pesanan.tableNumber,
+      paymentMethod: pesanan.paymentMethod,
     })
 
     return updated
@@ -301,7 +318,6 @@ class SellerService {
       _count:  { _all: true },
     })
 
-    // Menu terlaris dari rentang tanggal ini
     const menuTerlaris = await prisma.detailPesanan.groupBy({
       by:      ['menuId', 'menuName'],
       where:   { pesanan: where },

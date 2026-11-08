@@ -11,5 +11,5 @@ export {
   AdminService,
   SellerService,
   CustomerService,
-  UploadService,
+  UploadService
 }

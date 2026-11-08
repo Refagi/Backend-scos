@@ -1,6 +1,6 @@
 import httpStatusCode from 'http-status-codes'
-import bcrypt from 'bcryptjs';
 import prisma from '@/../prisma/client.js'
+import bcrypt from 'bcryptjs';
 import { ApiError } from '@/utils/ApiError.js'
 import { Role, UserStatus, OrderStatus, MenuCategory } from '@/generated/prisma/client.js'
 import type { CreateMenuInput, UpdateMenuInput, GetAllMenuQuery } from '@/models/menu.model.js'
@@ -23,8 +23,8 @@ class AdminService {
       }
     }
 
-     const salt = await bcrypt.genSalt(12);
-     const hashedPassword = await bcrypt.hash(body.password, salt);
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(body.password, salt);
 
     return prisma.user.create({
       data: {
@@ -34,7 +34,6 @@ class AdminService {
         password: hashedPassword,
         role: body.role,
         status: body.status ?? UserStatus.active,
-
         // seller fields
         storeName: body.storeName,
         description: body.description,
@@ -321,7 +320,12 @@ static async tambahMenu(body: CreateMenuInput) {
 
     return prisma.pesanan.update({
       where: { id: pesananId },
-      data: { status: body.status, updatedAt: new Date() },
+      data: {
+        status: body.status,
+        updatedAt: new Date(),
+        // pesanan tunai dianggap lunas saat selesai
+        ...(body.status === 'selesai' && pesanan.paymentMethod === 'cash' && !pesanan.isPaid && { isPaid: true, paidAt: new Date() }),
+      },
       include: {
         customer: { select: { id: true, name: true } },
         seller: { select: { id: true, name: true, storeName: true } },
@@ -363,7 +367,6 @@ static async tambahMenu(body: CreateMenuInput) {
       0
     )
 
-    // Pendapatan per seller
     const perSeller = pesanan.reduce<Record<string, { storeName: string; total: number; jumlahPesanan: number }>>(
       (acc, p) => {
         const key = p.sellerId

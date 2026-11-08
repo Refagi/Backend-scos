@@ -1,6 +1,6 @@
 import prisma from '@/../prisma/client.js'
 import { sendToUser } from '@/utils/pusherServer.js'
-import type { Role, NotifType } from '@/generated/prisma/client.js'
+import type { Role, NotifType, OrderType, PaymentMethod } from '@/generated/prisma/client.js'
 import type { CreateNotifParams } from '@/models/notifikasi.model.js'
 
 export class NotifikasiService {
@@ -75,12 +75,14 @@ export async function notifPesananBaru(params: {
   orderNumber:   string
   pesananId:     string
   ringkasanMenu: string
+  /** mis. "Dine In · Meja A5 · Tunai" */
+  rincian?:      string
 }) {
   await NotifikasiService.kirim({
     userId:    params.sellerId,
     role:      'seller',
     title:     'Pesanan Baru Masuk!',
-    message:   `${params.customerName} — ${params.ringkasanMenu} (${params.orderNumber})`,
+    message:   `${params.customerName} — ${params.ringkasanMenu} (${params.orderNumber})${params.rincian ? ` • ${params.rincian}` : ''}`,
     type:      'info',
     pesananId: params.pesananId,
   })
@@ -95,8 +97,8 @@ export async function notifPembayaranDikirim(params: {
   await NotifikasiService.kirim({
     userId:    params.sellerId,
     role:      'seller',
-    title:     'Customer Sudah Transfer!',
-    message:   `Pesanan ${params.orderNumber} — customer mengklaim sudah transfer. Cek saldo kamu ya!`,
+    title:     'Bukti Pembayaran Masuk!',
+    message:   `Pesanan ${params.orderNumber} — customer mengirim bukti pembayaran QRIS. Cek buktinya lalu proses pesanan.`,
     type:      'success',
     pesananId: params.pesananId,
   })
@@ -108,6 +110,9 @@ export async function notifStatusBerubah(params: {
   pesananId:   string
   status:      string
   sellerName:  string
+  orderType?:     OrderType
+  tableNumber?:   string | null
+  paymentMethod?: PaymentMethod
 }) {
   type StatusConfig = { title: string; message: string; type: NotifType }
 
@@ -123,8 +128,11 @@ export async function notifStatusBerubah(params: {
       type:    'info',
     },
     siap: {
-      title:   'Pesanan Siap Diambil!',
-      message: `Pesanan ${params.orderNumber} sudah siap. Silakan ambil di ${params.sellerName}`,
+      title:   params.orderType === 'dine_in' ? 'Pesanan Siap Diantar!' : 'Pesanan Siap Diambil!',
+      message: (params.orderType === 'dine_in'
+        ? `Pesanan ${params.orderNumber} sudah siap dan akan diantar ke Meja ${params.tableNumber ?? '-'}.`
+        : `Pesanan ${params.orderNumber} sudah siap. Silakan ambil di ${params.sellerName}.`)
+        + (params.paymentMethod === 'cash' ? ' Siapkan pembayaran tunai ya.' : ''),
       type:    'success',
     },
     selesai: {

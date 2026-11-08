@@ -35,6 +35,16 @@ enum OrderStatus {
   selesai
 }
 
+enum OrderType {
+  dine_in
+  takeaway
+}
+
+enum PaymentMethod {
+  cash
+  qris
+}
+
 enum TokenType {
   ACCESS
   REFRESH
@@ -144,6 +154,13 @@ model Pesanan {
   paidAt       DateTime?
   slot       String?     @db.VarChar(50)
   notes      String?     @db.Text
+
+  // Default = perilaku lama (ambil di tempat + bayar QRIS) supaya pesanan lama tetap valid.
+  orderType      OrderType     @default(takeaway)
+  tableNumber    String?       @db.VarChar(20)   /// wajib jika dine_in, diisi manual oleh pembeli
+  paymentMethod  PaymentMethod @default(qris)
+  paymentProof   String?       @db.Text          /// URL bukti bayar QRIS (Cloudinary)
+  paymentProofAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

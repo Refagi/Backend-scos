@@ -34,7 +34,7 @@ class AuthController {
         const { password: _, ...userWithoutPassword } = user;
 
         return c.json({
-            status: httpStatusCode.CREATED,
+            status: httpStatusCode.StatusCodes.CREATED,
             message: 'Registrasi berhasil',
             data: { user: userWithoutPassword }
         });
@@ -43,7 +43,7 @@ class AuthController {
     static login = catchAsync(async (c: Context) => {
         const {email, password} = c.get('parsedJson') as LoginBody;
         if(!password ) {
-            throw new ApiError(httpStatusCode.BAD_REQUEST, 'Password belum diatur, silahkan atur password terlebih dahulu!');
+            throw new ApiError(httpStatusCode.StatusCodes.BAD_REQUEST, 'Password belum diatur, silahkan atur password terlebih dahulu!');
         }
         const userBody = { email, password }
         const user = await AuthServices.login(userBody);
@@ -64,25 +64,25 @@ class AuthController {
         });
         const { password: _, ...userWithoutPassword } = user;
 
-        return c.json({status: httpStatusCode.OK, message: 'Login is successfully', data: { user: userWithoutPassword, tokens }})
+        return c.json({status: httpStatusCode.StatusCodes.OK, message: 'Login is successfully', data: { user: userWithoutPassword, tokens }})
     });
 
 
     static logout = catchAsync(async (c: Context) => {
         const getCookies = getCookie(c, 'refreshToken') as LogoutBody['refreshToken'];
         if (!getCookies) {
-            throw new ApiError(httpStatusCode.NOT_FOUND, 'Kamu telah logout!');
+            throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Kamu telah logout!');
         }
         await AuthServices.logout(getCookies);
         deleteCookie(c, 'accessToken', { path: '/v1' });
         deleteCookie(c, 'refreshToken', { path: '/v1' });
-        return c.json({status: httpStatusCode.OK, message: 'Logout is successfully'});
+        return c.json({status: httpStatusCode.StatusCodes.OK, message: 'Logout is successfully'});
     });
 
     static refreshToken = catchAsync(async (c: Context) => {
         const getToken = getCookie(c, 'refreshToken') as LogoutBody['refreshToken'];
         if (!getToken) {
-            throw new ApiError(httpStatusCode.UNAUTHORIZED, 'Refresh token tidak ditemukan!');
+            throw new ApiError(httpStatusCode.StatusCodes.UNAUTHORIZED, 'Refresh token tidak ditemukan!');
         }
         const newToken = await AuthServices.refreshToken(getToken);
         setCookie(c, 'accessToken', newToken.access.token, {
@@ -99,7 +99,7 @@ class AuthController {
             path: '/v1',
             maxAge: 60 * 60 * 24 * 30 // 30 days
         });
-        return c.json({status: httpStatusCode.OK, message: 'Token berhasil diperbarui', data: newToken});
+        return c.json({status: httpStatusCode.StatusCodes.OK, message: 'Token berhasil diperbarui', data: newToken});
     })
 
     static getCurrentUser = catchAsync(async (c: Context) => {
@@ -112,7 +112,7 @@ class AuthController {
             email: user.email,
             role:  user.role,
           },
-          status: httpStatusCode.OK,
+          status: httpStatusCode.StatusCodes.OK,
         })
     })
 }

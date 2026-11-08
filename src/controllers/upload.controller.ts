@@ -13,7 +13,7 @@ class UploadController {
     const data = UploadService.createSignature(user.role, purpose);
 
     c.header('Cache-Control', 'no-store');
-    return c.json({ status: httpStatusCode.OK, data });
+    return c.json({ status: httpStatusCode.StatusCodes.OK, data });
   });
 }
 

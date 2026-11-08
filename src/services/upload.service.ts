@@ -11,13 +11,13 @@ import {
 
 class UploadService {
   /**
-   * Menghasilkan parameter bertanda tangan biar browser bisa upload langsung ke Cloudinary.
+   * hasilnya parameter bertanda tangan agar browser bisa upload langsung ke Cloudinary.
    * `folder` dan `allowed_formats` ikut ditandatangani, jadi tidak bisa diubah oleh klien.
    */
   static createSignature(role: string, purpose: UploadPurpose) {
     const rule = UPLOAD_PURPOSES[purpose];
     if (!rule.roles.some((r) => r === role)) {
-      throw new ApiError(httpStatusCode.FORBIDDEN, 'Anda tidak memiliki akses untuk mengupload jenis gambar ini');
+      throw new ApiError(httpStatusCode.StatusCodes.FORBIDDEN, 'Anda tidak memiliki akses untuk mengupload jenis gambar ini');
     }
 
     const { cloudName, apiKey, apiSecret } = config.cloudinary;

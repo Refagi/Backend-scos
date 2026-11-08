@@ -10,9 +10,9 @@ import type {
   UpdateOrderStatusInput,
   CreatePesananInput,
 } from '@/models/order.model.js';
-import type { CreateMenuInput, UpdateMenuInput } from '@/models/menu.model.js';
 import { nanoid } from 'nanoid';
 import { notifPesananBaru, notifPembayaranDikirim } from './notifikasi.service.js';
+import { orderTypeLabel, paymentMethodLabel } from '@/utils/orderLabel.js';
 
 class CustomerService {
   static async getDaftarSeller() {
@@ -52,7 +52,7 @@ class CustomerService {
     });
 
     if (!seller) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Seller tidak ditemukan');
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Seller tidak ditemukan');
     }
 
     const menus = await prisma.menu.findMany({
@@ -70,15 +70,21 @@ class CustomerService {
   static async buatPesanan(customerId: string, body: CreatePesananInput) {
     const seller = await prisma.user.findUnique({
       where: { id: body.sellerId },
-      select: { id: true, isOpen: true, storeName: true },
+      select: { id: true, isOpen: true, storeName: true, qrisImage: true },
     });
     if (!seller) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Seller tidak ditemukan');
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Seller tidak ditemukan');
     }
     if (!seller.isOpen) {
       throw new ApiError(
-        httpStatusCode.BAD_REQUEST,
+        httpStatusCode.StatusCodes.BAD_REQUEST,
         `${seller.storeName} sedang tutup`
+      );
+    }
+    if (body.paymentMethod === 'qris' && !seller.qrisImage) {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.BAD_REQUEST,
+        `${seller.storeName} belum menyediakan QRIS. Silakan pilih pembayaran tunai.`
       );
     }
 
@@ -93,7 +99,7 @@ class CustomerService {
 
     if (menus.length !== menuIds.length) {
       throw new ApiError(
-        httpStatusCode.BAD_REQUEST,
+        httpStatusCode.StatusCodes.BAD_REQUEST,
         'Beberapa menu tidak tersedia atau tidak ditemukan'
       );
     }
@@ -127,6 +133,10 @@ class CustomerService {
           status: 'menunggu',
           slot: body.slot ?? null,
           notes: body.notes ?? null,
+          orderType: body.orderType,
+          paymentMethod: body.paymentMethod,
+          // nomor meja hanya relevan untuk dine in
+          tableNumber: body.orderType === 'dine_in' ? (body.tableNumber ?? null) : null,
           details: {
             createMany: { data: details },
           },
@@ -160,6 +170,10 @@ class CustomerService {
       orderNumber: pesanan.orderNumber,
       pesananId: pesanan.id,
       ringkasanMenu,
+      rincian: [
+        orderTypeLabel(pesanan.orderType, pesanan.tableNumber),
+        paymentMethodLabel(pesanan.paymentMethod),
+      ].join(' · '),
     });
 
     return pesanan;
@@ -170,16 +184,16 @@ class CustomerService {
       where: { id: pesananId },
     });
     if (!pesanan)
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan');
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan');
     if (pesanan.customerId !== customerId) {
       throw new ApiError(
-        httpStatusCode.FORBIDDEN,
+        httpStatusCode.StatusCodes.FORBIDDEN,
         'Anda tidak memiliki akses ke pesanan ini'
       );
     }
     if (pesanan.status !== 'menunggu') {
       throw new ApiError(
-        httpStatusCode.BAD_REQUEST,
+        httpStatusCode.StatusCodes.BAD_REQUEST,
         `Pesanan tidak bisa dibatalkan karena statusnya sudah '${pesanan.status}'`
       );
     }
@@ -190,38 +204,65 @@ class CustomerService {
     });
   }
 
-  static async konfirmasiPembayaran(customerId: string, pesananId: string) {
+  /**
+   * Customer mengirim bukti pembayaran QRIS.
+   * Hanya untuk pesanan QRIS berstatus 'menunggu'. Setelah bukti terkirim, pesanan
+   * otomatis 'diterima' (sama seperti alur sebelumnya) dan seller bisa memeriksa buktinya;
+   * jika tidak valid, seller masih bisa menolak pesanan.
+   */
+  static async konfirmasiPembayaran(customerId: string, pesananId: string, paymentProof: string) {
     const pesanan = await prisma.pesanan.findUnique({
       where: { id: pesananId },
       include: { seller: { select: { id: true, storeName: true } } },
     });
     if (!pesanan)
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan');
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan');
     if (pesanan.customerId !== customerId) {
       throw new ApiError(
-        httpStatusCode.FORBIDDEN,
+        httpStatusCode.StatusCodes.FORBIDDEN,
         'Anda tidak memiliki akses ke pesanan ini'
+      );
+    }
+    if (pesanan.paymentMethod !== 'qris') {
+      throw new ApiError(
+        httpStatusCode.StatusCodes.BAD_REQUEST,
+        'Pesanan ini dibayar tunai di tempat, tidak perlu bukti pembayaran'
       );
     }
     if (pesanan.status !== 'menunggu') {
       throw new ApiError(
-        httpStatusCode.BAD_REQUEST,
+        httpStatusCode.StatusCodes.BAD_REQUEST,
         `Pesanan sudah dalam status '${pesanan.status}'`
       );
     }
 
-    const updated = await prisma.pesanan.update({
-      where: { id: pesananId },
+    const now = new Date();
+    const { count } = await prisma.pesanan.updateMany({
+      where: { id: pesananId, customerId, status: 'menunggu', paymentMethod: 'qris' },
       data: {
         isPaid: true,
-        paidAt: new Date(),
-        status: pesanan.status === 'menunggu' ? 'diterima' : pesanan.status,
-      },include: {
-        customer: true,
-        seller: true,
+        paidAt: now,
+        paymentProof,
+        paymentProofAt: now,
+        status: 'diterima',
+      },
+    });
+    if (count === 0) {
+      throw new ApiError(
+        httpStatusCode.CONFLICT,
+        'Status pesanan baru saja berubah. Muat ulang halaman lalu coba lagi.'
+      );
+    }
+
+    const updated = await prisma.pesanan.findUniqueOrThrow({
+      where: { id: pesananId },
+      include: {
+        seller: {
+          select: { id: true, storeName: true, location: true, logo: true, qrisImage: true },
+        },
         details: true,
-      }
-    })
+      },
+    });
 
     await notifPembayaranDikirim({
       sellerId: pesanan.sellerId,
@@ -230,7 +271,7 @@ class CustomerService {
       sellerName: pesanan.seller.storeName ?? 'Tenant',
     });
 
-    return updated
+    return updated;
   }
 
   static async getRiwayatPesanan(customerId: string, status?: OrderStatus) {
@@ -281,11 +322,11 @@ class CustomerService {
     });
 
     if (!pesanan) {
-      throw new ApiError(httpStatusCode.NOT_FOUND, 'Pesanan tidak ditemukan');
+      throw new ApiError(httpStatusCode.StatusCodes.NOT_FOUND, 'Pesanan tidak ditemukan');
     }
     if (pesanan.customerId !== customerId) {
       throw new ApiError(
-        httpStatusCode.FORBIDDEN,
+        httpStatusCode.StatusCodes.FORBIDDEN,
         'Anda tidak memiliki akses ke pesanan ini'
       );
     }
@@ -301,6 +342,11 @@ class CustomerService {
       status: pesanan.status,
       slot: pesanan.slot,
       notes: pesanan.notes,
+      orderType: pesanan.orderType,
+      tableNumber: pesanan.tableNumber,
+      paymentMethod: pesanan.paymentMethod,
+      isPaid: pesanan.isPaid,
+      paymentProof: pesanan.paymentProof,
       seller: pesanan.seller,
       items: pesanan.details.map(d => ({
         menuName: d.menuName,

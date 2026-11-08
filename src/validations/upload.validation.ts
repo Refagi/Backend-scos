@@ -1,18 +1,12 @@
 import { z } from 'zod';
 import { config } from '@/config/config.js';
-import { UPLOAD_PURPOSE_KEYS } from '@/config/upload.js';
+import { UPLOAD_PURPOSE_KEYS, UPLOAD_PURPOSES } from '@/config/upload.js';
 
 export const signatureSchema = z.object({
   purpose: z.enum(UPLOAD_PURPOSE_KEYS, { message: 'Jenis upload tidak valid' }),
 });
 export type SignatureBody = z.infer<typeof signatureSchema>;
 
-/**
- * Nilai kolom gambar di database hanya boleh kalau:
- *  - URL Cloudinary milik cloud kita (hasil upload lewat endpoint signature), atau
- *  - path statis lokal diawali "/" (data lama / seed, mis. "/kantinBunda/tenant/x.png").
- * Selain itu ditolak, supaya URL sembarang (javascript:, situs lain, dsb.) tidak tersimpan.
- */
 export const isAllowedImageRef = (value: string): boolean => {
   if (value.startsWith('/')) {
     return !value.startsWith('//') && !value.includes('..') && value.length <= 300;
@@ -22,7 +16,7 @@ export const isAllowedImageRef = (value: string): boolean => {
 };
 
 /**
- * Skema reusable untuk kolom gambar di db.
+ * Skema reusable untuk kolom gambar.
  *  - undefined -> tidak diubah
  *  - null atau "" -> gambar dihapus (disimpan sebagai null)
  *  - string -> harus lolos isAllowedImageRef
@@ -33,3 +27,20 @@ export const imageField = z
     z.string().refine(isAllowedImageRef, { message: 'URL gambar tidak valid' }).nullable()
   )
   .optional();
+
+/**
+ * Bukti pembayaran harus berupa URL Cloudinary di folder khusus bukti bayar,
+ * artinya benar-benar hasil upload lewat endpoint signature (purpose "payment_proof").
+ */
+export const isPaymentProofRef = (value: string): boolean => {
+  const prefix = `https://res.cloudinary.com/${config.cloudinary.cloudName}/image/upload/`;
+  return (
+    value.length <= 1000 &&
+    value.startsWith(prefix) &&
+    value.includes(`/${UPLOAD_PURPOSES.payment_proof.folder}/`)
+  );
+};
+
+export const paymentProofSchema = z
+  .string({ message: 'Bukti pembayaran wajib diupload' })
+  .refine(isPaymentProofRef, { message: 'Bukti pembayaran tidak valid. Upload ulang gambar bukti pembayaran.' });
